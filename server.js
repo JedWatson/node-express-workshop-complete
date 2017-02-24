@@ -60,15 +60,24 @@ app.get('/:post', (req, res, next) => {
 	db.get(req.params.post, (err, content) => {
 		if (err) {
 			if (err.name === 'NotFoundError') {
-				res.status(404).send('Not Found');
+				return next();
 			} else {
-				console.log('Error retrieving Post from database:', err);
-				res.status(500).send('Error retrieving Post');
+				console.error('Error retrieving Post from database:', err);
+				return next(err);
 			}
-			return;
 		}
 		res.json(content);
 	});
+});
+
+// This is the main handler for routes that aren't matched
+app.use((req, res, next) => {
+	res.status(404).render('not-found');
+});
+
+// This is the main handler for any error passed to next()
+app.use((err, req, res, next) => {
+	res.status(err.status || 500).render('error', { err: err });
 });
 
 // Ensure the index of posts has been created

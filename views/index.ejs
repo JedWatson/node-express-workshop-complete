@@ -5,11 +5,20 @@
     <%- include('includes/htmlhead') %>
   </head>
   <body>
-    <h1>Hello world!</h1>
-    <% if (posts.length) { %>
-      <%= posts.length %> Posts
-    <% } else { %>
-      No posts yet.
-    <% } %>
+    <div class="container">
+      <h1>Hello world!</h1>
+      <% if (posts.length) { %>
+        <p>
+          <%= posts.length %> Posts
+        </p>
+      <% } else { %>
+        <p>
+          No posts yet.
+        </p>
+      <% } %>
+      <p class="mt-1">
+        <a href="/create-post" class="btn btn-secondary">Create post</a>
+      </p>
+    </div>
   </body>
 </html>

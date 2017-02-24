@@ -5,17 +5,20 @@
     <%- include('includes/htmlhead') %>
   </head>
   <body>
-    <h1>Add a New Post</h1>
-    <form method="post">
-      <div class="form-group">
-        <label for="title">Title</label>
-        <input type="text" class="form-control" id="title" name="title" placeholder="One upon a time...">
-      </div>
-      <div class="form-group">
-        <label for="content">Content</label>
-        <textarea class="form-control" id="content" name="content" rows="10"></textarea>
-      </div>
-      <button type="submit" class="btn btn-primary">Save</button>
-    </form>
+    <div class="container">
+      <h1>Add a New Post</h1>
+      <form method="post">
+        <div class="form-group">
+          <label for="title">Title</label>
+          <input type="text" class="form-control" id="title" name="title" placeholder="One upon a time...">
+        </div>
+        <div class="form-group">
+          <label for="content">Content</label>
+          <textarea class="form-control" id="content" name="content" rows="10"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a href="/" class="btn btn-secondary">Cancel</a>
+      </form>
+    </div>
   </body>
 </html>
