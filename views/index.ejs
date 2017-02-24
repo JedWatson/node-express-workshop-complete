@@ -6,13 +6,25 @@
   </head>
   <body>
     <div class="container">
-      <h1>Hello world!</h1>
+      <h1>
+        My Blog
+        <% if (posts.length) { %>
+          <small class="text-muted">
+            <%= posts.length %> Post<%= posts.length > 1 ? 's' : '' %>
+          </small>
+        <% } %>
+      </h1>
       <% if (posts.length) { %>
-        <p>
-          <%= posts.length %> Posts
-        </p>
+        <% posts.forEach(post => { %>
+          <h3 class="mt-1">
+            <a href="<%= post.url %>">
+              <%= post.title %>
+            </a>
+          </h3>
+          <%- post.content %>
+        <% }) %>
       <% } else { %>
-        <p>
+        <p class="mt-1">
           No posts yet.
         </p>
       <% } %>

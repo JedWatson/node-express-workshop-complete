@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= post.title %></title>
+    <%- include('includes/htmlhead') %>
+  </head>
+  <body>
+    <div class="container">
+      <h1>
+        <%= post.title %>
+      </h1>
+      <%- post.content %>
+      <p class="mt-1">
+        <a href="/" class="btn btn-secondary">Go Home</a>
+      </p>
+    </div>
+  </body>
+</html>

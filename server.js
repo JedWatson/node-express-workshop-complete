@@ -23,15 +23,29 @@ app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // This method serves the home page, which is an index of posts
-app.get('/', (req, res) => {
-	db.get('index', (err, posts) => {
-		if (err) {
-			console.log('Error retrieving Index from database:', err);
-			res.status(500).send('Error retrieving Index');
-		} else {
-			res.render('index', { posts: posts });
-		}
-	});
+app.get('/', (req, res, next) => {
+	// Here we create an empty array of posts, then read all the data from the
+	// database adding each post onto the array. When the set is complete, we
+	// pass the array of posts to the index template and render it.
+	const posts = [];
+	// Note: in a production application, you should really handle errors from
+	// the database, and implement pagination. We're going to skip both of those
+	// here for the sake of simplicity.
+	db.createReadStream()
+		.on('data', post => {
+			// We apply a little bit of transformation here to make the data
+			// easier to work with in the template, including converting the
+			// content from markdown to html
+			posts.push({
+				url: '/' + post.key,
+				title: post.value.title || post.key,
+				content: marked(post.value.short),
+			});
+		})
+		.on('end', () => {
+			// Now we've got all our posts, so let's render them!
+			res.render('index', { posts });
+		});
 });
 
 // This method serves up the new post form
@@ -44,12 +58,12 @@ app.post('/create-post', (req, res) => {
 	// We simply create a new id using the current time
 	const id = Date.now();
 	// Put the post content in the database
-	db.put(id, req.body.content, (err) => {
-		if (err) {
-			console.log('Error creating Post:', err);
-			res.status(500).send('Error creating Post');
-			return;
-		}
+	db.put(id, {
+		title: req.body.title,
+		short: req.body.short,
+		long: req.body.long,
+	}, (err) => {
+		if (err) return next(err);
 		console.log(`Created Post ${id}`);
 		res.redirect(`/${id}`);
 	});
@@ -57,16 +71,28 @@ app.post('/create-post', (req, res) => {
 
 // This method serves a single post
 app.get('/:post', (req, res, next) => {
-	db.get(req.params.post, (err, content) => {
+	db.get(req.params.post, (err, post) => {
+		// If we received an error, it may either mean that the post wan't
+		// found, or that for some reason the database errored
 		if (err) {
 			if (err.name === 'NotFoundError') {
+				// In this case, the post wan't found so we call next() to
+				// move on to the generic "not found" 404 handler below
 				return next();
 			} else {
-				console.error('Error retrieving Post from database:', err);
+				// Other errors are passed to our generic error handler
 				return next(err);
 			}
 		}
-		res.json(content);
+		// Make sure we turn the post content from markdown into html. We're
+		// also going to default to the short content if the long content
+		// hasn't been written.
+		res.render('post', {
+			post: {
+				title: post.title,
+				content: marked(post.long || post.short),
+			},
+		});
 	});
 });
 
@@ -77,21 +103,19 @@ app.use((req, res, next) => {
 
 // This is the main handler for any error passed to next()
 app.use((err, req, res, next) => {
-	res.status(err.status || 500).render('error', { err: err });
-});
-
-// Ensure the index of posts has been created
-db.get('index', (err, index) => {
-	// if the index doesn't exist, set it to an empty array
-	// you can also pass the argument --reset when starting node, like this:
-	// $ node server.js --reset
-	if (!index || process.argv[2] === '--reset') {
-		db.put('index', []);
-		console.log('Initialised content database');
-	}
+	console.log('---------');
+	console.error(err);
+	res.status(err.status || 500).render('error', { err });
 });
 
 // This method starts the web server.
 app.listen(3000, () => {
 	console.log('Server is listening on port 3000');
 });
+
+// It's handy to be able to reset the content database; that's what this
+// little thing does. To run it, use $ node server --reset
+if (process.argv[2] === '--reset') {
+	db.createKeyStream().on('data', key => db.del(key));
+	console.log('Reset the content database');
+}
