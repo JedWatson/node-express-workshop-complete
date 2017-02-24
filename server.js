@@ -34,24 +34,9 @@ app.get('/', (req, res) => {
 	});
 });
 
-// This method serves a single post
-app.get('/:post', (req, res) => {
-	db.get(req.params.post, (err, content) => {
-		if (err) {
-			if (err.name === 'NotFoundError') {
-				res.status(404).send('Not Found');
-			} else {
-				console.log('Error retrieving Post from database:', err);
-				res.status(500).send('Error retrieving Post');
-			}
-			return;
-		}
-		res.json(content);
-	});
-});
-
+// This method serves up the new post form
 app.get('/create-post', (req, res) => {
-	res.send('Create post');
+	res.render('create-post');
 });
 
 // This method handles the create-post action when a form is submitted
@@ -70,10 +55,28 @@ app.post('/create-post', (req, res) => {
 	});
 });
 
+// This method serves a single post
+app.get('/:post', (req, res, next) => {
+	db.get(req.params.post, (err, content) => {
+		if (err) {
+			if (err.name === 'NotFoundError') {
+				res.status(404).send('Not Found');
+			} else {
+				console.log('Error retrieving Post from database:', err);
+				res.status(500).send('Error retrieving Post');
+			}
+			return;
+		}
+		res.json(content);
+	});
+});
+
 // Ensure the index of posts has been created
 db.get('index', (err, index) => {
+	// if the index doesn't exist, set it to an empty array
+	// you can also pass the argument --reset when starting node, like this:
+	// $ node server.js --reset
 	if (!index || process.argv[2] === '--reset') {
-		// if the index doesn't exist, set it to an empty array
 		db.put('index', []);
 		console.log('Initialised content database');
 	}
