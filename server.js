@@ -12,6 +12,9 @@ const marked = require('marked');
 const express = require('express');
 // We'll also need the body-parser middleware so we can accept form data
 const bodyParser = require('body-parser');
+// And morgan, which is a logging framework for express that will log all
+// requests to the console for us
+const morgan = require('morgan');
 
 // Here we create the express app
 const app = express();
@@ -19,6 +22,8 @@ const app = express();
 app.set('view engine', 'ejs');
 // The static middleware serves files from the public directory
 app.use(express.static('public'));
+// Morgan should go next, so all dynamic requests get logged to the console
+app.use(morgan(':method :url :status - :response-time ms'));
 // The bodyparser middleware will turn form data into the req.body object
 app.use(bodyParser.urlencoded({ extended: true }));
 
