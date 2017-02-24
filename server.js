@@ -1,3 +1,12 @@
+/*
+	This is the file that runs our webserver. It connects to the database,
+	creates the express app and configures it to serve requests.
+
+	In a larger project, you'd break a lot of this out into separate files -
+	especially the route handlers. For the purpose of this example however
+	I've left it all here so you can see what it looks like end to end.
+*/
+
 // We're going to use leveldb to store our posts. It's a simple file-based
 // database for node.js, and we tell it we're storing JSON data
 const levelup = require('level');

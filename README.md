@@ -2,7 +2,7 @@
 
 This is the reference implementation for the node-express-workshop I am working on.
 
-The workshop is still being written, but I'd love feedback on this.
+> The workshop is still being written, but I'd love feedback on the this project!
 
 The outcome is a simple blog website using:
 
